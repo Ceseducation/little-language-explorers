@@ -506,6 +506,7 @@ var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycby6bwEVKNS_ewzlz99
     if (SHEET_ENDPOINT.indexOf('https://script.google.com/') !== 0) { show('showError', true); return; }
     sending = true; btn.disabled = true; btn.textContent = 'Đang gửi…';
     var body = new URLSearchParams(new FormData(form));
+    body.set('ref', getRef());
     fetch(SHEET_ENDPOINT, { method: 'POST', body: body })
       .then(function (r) { return r.json(); })
       .then(function (j) {
@@ -520,6 +521,22 @@ var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycby6bwEVKNS_ewzlz99
       });
   });
 })();
+</script>
+<script>
+// Ghi nhớ mã CTV (?ref=...) trong 30 ngày
+(function () {
+  var ref = new URLSearchParams(location.search).get('ref');
+  if (ref) {
+    try { localStorage.setItem('ces_ref', JSON.stringify({ code: ref.trim().toUpperCase(), t: Date.now() })); } catch (e) {}
+  }
+})();
+function getRef() {
+  try {
+    var d = JSON.parse(localStorage.getItem('ces_ref') || 'null');
+    if (d && Date.now() - d.t < 30 * 864e5) return d.code;
+  } catch (e) {}
+  return '';
+}
 </script>
 </body>
 </html>
